@@ -4,3 +4,5 @@
 /__pycache__
 test.ipynb
 returns_predictions.py
+uv.lock
+stock_prediction_deep_leaning.egg-info
