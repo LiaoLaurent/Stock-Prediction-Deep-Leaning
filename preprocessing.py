@@ -1,15 +1,18 @@
 import numpy as np
 import pandas as pd
-import ta
+import ta # type: ignore
 import matplotlib.pyplot as plt
 
-market_open_time = "09:30:00"
-market_close_time = "16:00:00"
+
+### Time in UTC, donc il y a un décalage horaire ###
+market_open_time = "13:30:00"
+market_close_time = "20:00:00"
 
 
 def load_data(data_path):
     df = pd.read_parquet(data_path)
-    df = df.reset_index().set_index("ts_event")
+    df = df.reset_index().set_index("ts_event") # pour avoir ts_event en index
+    df.drop(columns=["publisher_id", "ts_recv", "rtype","instrument_id","date","symbol"], inplace=True) # because it's unuseful
     return df
 
 
@@ -34,7 +37,7 @@ def resample_mid_prices(df, sampling_rate):
     return mid_prices
 
 
-def calculate_order_sizes(df, sampling_rate):
+def calculate_order_sizes(df, sampling_rate): # pour avoir les aggrégats de ce qu'il s'est passé pendant la période
     grouped = (
         df.groupby([pd.Grouper(freq=sampling_rate), "action", "side"])["size"]
         .sum()
