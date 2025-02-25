@@ -89,20 +89,20 @@ def compute_hft_indicators(df):
 
     indicators["EMA_5"] = ta.trend.ema_indicator(
         indicators["mid_price_close"], window=5
-    )
+    ) # pour avoir la moyenne mobile exponentielle à 5 périodes
     indicators["MA_5"] = (
         indicators["mid_price_close"].rolling(window=5, min_periods=1).mean()
-    )
+    ) # pour avoir la moyenne mobile à 5 périodes
 
     indicators["Bollinger_Upper"] = indicators["MA_5"] + (
         indicators["mid_price_close"].rolling(5).std() * 2
-    )
+    ) # pour avoir la borne supérieure du bollinger, càd la moyenne + 2 écarts-types
     indicators["Bollinger_Lower"] = indicators["MA_5"] - (
         indicators["mid_price_close"].rolling(5).std() * 2
-    )
+    ) # pour avoir la borne inférieure du bollinger, càd la moyenne - 2 écarts-types
 
-    indicators["High_Shift"] = indicators["mid_price_high"].shift(1)
-    indicators["Low_Shift"] = indicators["mid_price_low"].shift(1)
+    indicators["High_Shift"] = indicators["mid_price_high"].shift(1) # pour avoir la valeur de la borne supérieure du bollinger à la période précédente
+    indicators["Low_Shift"] = indicators["mid_price_low"].shift(1) # pour avoir la valeur de la borne inférieure du bollinger à la période précédente
 
     indicators["DMP_3"] = (
         pd.Series(
@@ -118,8 +118,7 @@ def compute_hft_indicators(df):
         )
         .rolling(3, min_periods=1)
         .sum()
-    )
-
+    ) # renvoie la somme des valeurs (si positives, sinon 0) de la diff entre le sup bollinger à t et le sup bollinger à t-1
     indicators["DMN_3"] = (
         pd.Series(
             np.where(
@@ -134,16 +133,16 @@ def compute_hft_indicators(df):
         )
         .rolling(3, min_periods=1)
         .sum()
-    )
+    ) # idem mais pour les négatifs
 
     indicators["OLL3"] = (
         indicators["mid_price_open"]
         - indicators["mid_price_low"].rolling(3, min_periods=1).min()
-    )
+    ) # la diff entre le prix d'ouverture et le min des 3 derniers prix bas en format OHLCV
     indicators["OLL5"] = (
         indicators["mid_price_open"]
         - indicators["mid_price_low"].rolling(5, min_periods=1).min()
-    )
+    ) # la diff entre le prix d'ouverture et le min des 5 derniers prix bas en format OHLCV
 
     indicators["STOCHk_7_3_3"] = ta.momentum.stoch(
         indicators["mid_price_high"],
@@ -151,16 +150,16 @@ def compute_hft_indicators(df):
         indicators["mid_price_close"],
         window=7,
         smooth_window=3,
-    )
+    ) # pour avoir le ratio entre close sur le stick, avec une moyenne mobile à 3 périodes
     indicators["STOCHd_7_3_3"] = (
         indicators["STOCHk_7_3_3"].rolling(3, min_periods=1).mean()
-    )
+    ) # on refait la moyenne mobile à 3 périodes
 
-    indicators.drop(columns=["High_Shift", "Low_Shift"], inplace=True)
+    indicators.drop(columns=["High_Shift", "Low_Shift"], inplace=True) # on vire les sup et low bollinger
 
-    indicators.ffill(inplace=True)
+    indicators.ffill(inplace=True) # on remplace les NaNs par la valeur précédente
 
-    last_nan_index = indicators[indicators.isna().any(axis=1)].index[-1]
+    last_nan_index = indicators[indicators.isna().any(axis=1)].index[-1] # on prend le dernier NaN pour avoir la dernière valeur non NaN
 
     # Drop all starting values with NaNs
     indicators = indicators.iloc[indicators.index.get_loc(last_nan_index) + 1 :]
