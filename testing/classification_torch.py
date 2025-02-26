@@ -12,11 +12,18 @@ import signal
 import sys
 import logging
 from pathlib import Path
+
 import dotenv
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 dotenv.load_dotenv()
+
+start_date = "2024-10-01"  # os.getenv("START_DATE")  # Début janvier
+end_date = "2024-12-16"    # Fin mars
+
+print(start_date)
+print(end_date)
 
 stock_name = os.getenv("STOCK_NAME")
 
@@ -128,8 +135,6 @@ look_back = 64  # Plus de contexte temporel
 # Data preprocessing
 from tf_preprocessing import process_and_combine_data
 
-start_date = os.getenv("START_DATE")  # Début janvier
-end_date = os.getenv("END_DATE")    # Fin mars
 
 # used AAPL
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)

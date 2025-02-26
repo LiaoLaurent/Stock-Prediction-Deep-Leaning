@@ -1,0 +1,16 @@
+2025-02-26 23:22:53,271 - INFO - Début de l'entraînement...
+2025-02-26 23:30:17,289 - INFO - Epoch 1 terminée - Modèle et métriques sauvegardés
+2025-02-26 23:30:17,289 - INFO - Epoch 1/20 - Train Loss: 0.4086 - Train Acc: 0.8468 - Val Loss: 0.3613 - Val Acc: 0.8770
+2025-02-26 23:37:41,433 - INFO - Epoch 2 terminée - Modèle et métriques sauvegardés
+2025-02-26 23:37:41,433 - INFO - Epoch 2/20 - Train Loss: 0.4010 - Train Acc: 0.8475 - Val Loss: 0.3610 - Val Acc: 0.8764
+2025-02-26 23:45:04,771 - INFO - Epoch 3 terminée - Modèle et métriques sauvegardés
+2025-02-26 23:45:04,771 - INFO - Epoch 3/20 - Train Loss: 0.3992 - Train Acc: 0.8476 - Val Loss: 0.3604 - Val Acc: 0.8768
+2025-02-26 23:47:33,789 - INFO - Signal d'interruption reçu. Arrêt propre en cours...
+2025-02-26 23:47:33,791 - INFO - Modèle sauvegardé: data/models/classification/classification_model_20250226_231905_interrupted.pt
+2025-02-26 23:47:33,791 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_231905_interrupted_metrics.json
+2025-02-26 23:49:57,999 - INFO - Signal d'interruption reçu. Arrêt propre en cours...
+2025-02-26 23:49:58,010 - INFO - Modèle sauvegardé: data/models/classification/classification_model_20250226_231905_interrupted.pt
+2025-02-26 23:49:58,011 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_231905_interrupted_metrics.json
+2025-02-26 23:49:58,912 - INFO - Signal d'interruption reçu. Arrêt propre en cours...
+2025-02-26 23:49:58,923 - INFO - Modèle sauvegardé: data/models/classification/classification_model_20250226_231905_interrupted.pt
+2025-02-26 23:49:58,924 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_231905_interrupted_metrics.json
