@@ -8,10 +8,14 @@ def main():
     os.makedirs(plots_dir, exist_ok=True)
 
     # Charger les métriques
-    model_time = "20250226_171713"
+    model_time = "20250226_175201"
     metrics_dir = "data/metrics"
-    metrics_files = [f for f in os.listdir(metrics_dir) if f.startswith(f"classification_model_{model_time}_epoch_")]
+    metrics_files = [f for f in os.listdir(metrics_dir) if f.startswith(f"classification_model_{model_time}_epoch_") and f.endswith("_metrics.json")]
     metrics_files.sort(key=lambda x: int(x.split("_epoch_")[1].split("_")[0]))
+
+    if not metrics_files:
+        print(f"Aucun fichier de métriques trouvé pour le modèle {model_time}")
+        return
 
     # Collecter toutes les métriques
     accuracy = []

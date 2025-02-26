@@ -24,8 +24,6 @@ import os
 import json
 import signal
 import sys
-import onnx
-import tf2onnx
 import logging
 from pathlib import Path
 import dotenv
@@ -76,12 +74,11 @@ def save_model_and_metrics():
     global current_model, current_metrics
     if current_model is not None:
         try:
-            # Sauvegarde du modèle en format ONNX
+            # Sauvegarde du modèle en format .keras
             model_name = f"classification_model_{current_time}_interrupted"
-            model_path = os.path.join(MODEL_DIR, f"{model_name}.onnx")
-            spec = (tf.TensorSpec((None, look_back, len(features)), tf.float32, name="input"),)
-            model_proto, _ = tf2onnx.convert.from_keras(current_model, input_signature=spec, output_path=model_path)
-            logging.info(f"Modèle sauvegardé en format ONNX: {model_path}")
+            model_path = os.path.join(MODEL_DIR, f"{model_name}.keras")
+            current_model.save(model_path)
+            logging.info(f"Modèle sauvegardé en format .keras: {model_path}")
 
             # Sauvegarde des métriques
             if current_metrics is not None:
@@ -98,11 +95,10 @@ class ModelCheckpointCallback(keras.callbacks.Callback):
         current_model = self.model
         current_metrics = logs
 
-        # Sauvegarde du modèle en format ONNX
+        # Sauvegarde du modèle en format .keras
         model_name = f"classification_model_{current_time}_epoch_{epoch+1}"
-        model_path = os.path.join(MODEL_DIR, f"{model_name}.onnx")
-        spec = (tf.TensorSpec((None, look_back, len(features)), tf.float32, name="input"),)
-        model_proto, _ = tf2onnx.convert.from_keras(self.model, input_signature=spec, output_path=model_path)
+        model_path = os.path.join(MODEL_DIR, f"{model_name}.keras")
+        self.model.save(model_path)
         
         # Sauvegarde des métriques
         metrics_path = os.path.join(METRICS_DIR, f"{model_name}_metrics.json")
@@ -144,8 +140,8 @@ look_back = 32
 # +
 from tf_preprocessing import process_and_combine_data
 
-start_date = "2024-10-02"
-end_date = "2024-10-15"
+start_date = os.getenv("START_DATE")
+end_date = os.getenv("END_DATE")
 
 # used AAL instead
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)

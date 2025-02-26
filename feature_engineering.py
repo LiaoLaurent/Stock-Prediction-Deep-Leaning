@@ -15,6 +15,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import dotenv
+
+dotenv.load_dotenv()
 
 # +
 AAPL_data_path = "/home/janis/EAP1/HFT_QR_RL/data/smash4/DB_MBP_10/AAPL/AAPL_2024-10-03_xnas-itch.parquet"
