@@ -140,8 +140,8 @@ look_back = 64  # Plus de contexte temporel
 # +
 from tf_preprocessing import process_and_combine_data
 
-start_date = os.getenv("START_DATE")  # Début janvier
-end_date = os.getenv("END_DATE")    # Fin mars
+start_date = "2024-10-01"  # os.getenv("START_DATE")  # Début janvier
+end_date = "2024-10-01"    # Fin mars
 
 # used AAPL
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)
@@ -275,27 +275,21 @@ from keras import layers
 # Architecture du modèle - Version simple mais plus grande
 def create_model(input_size):
     inputs = layers.Input(shape=(look_back, input_size))
-
-    # First LSTM layer - plus grand
-    x = layers.LSTM(512, return_sequences=True)(inputs)
+    
+    # GRU layer - plus simple que LSTM
+    x = layers.GRU(256, return_sequences=True)(inputs)
     x = layers.BatchNormalization()(x)
-
-    # MultiHeadAttention simple
-    attn_output = layers.MultiHeadAttention(num_heads=8, key_dim=64)(x, x, x)
-    x = layers.Add()([x, attn_output])
-    x = layers.LayerNormalization()(x)
     x = layers.Dropout(0.3)(x)
-
-    # Second LSTM layer - plus grand
-    x = layers.LSTM(256, return_sequences=False)(x)
+    
+    # Second GRU
+    x = layers.GRU(128)(x)
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.2)(x)
-
-    # Dense layers - plus larges
-    x = layers.Dense(128, activation="relu")(x)
-    x = layers.Dropout(0.2)(x)
+    
+    # Dense layers
+    x = layers.Dense(64, activation="relu")(x)
     outputs = layers.Dense(3, activation="softmax")(x)
-
+    
     model = keras.Model(inputs=inputs, outputs=outputs)
     
     optimizer = keras.optimizers.Adam(learning_rate=0.001)

@@ -1,0 +1,56 @@
+2025-02-26 22:04:15,695 - INFO - Début de l'entraînement...
+2025-02-26 22:04:20,689 - ERROR - Erreur pendant l'entraînement: Graph execution error:
+
+Detected at node functional_1/lstm_1/CudnnRNNV3 defined at (most recent call last):
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/testing/classification_tf.py", line 315, in <module>
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/trainer.py", line 371, in fit
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/trainer.py", line 219, in function
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/trainer.py", line 132, in multi_step_on_iterator
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/trainer.py", line 113, in one_step_on_data
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/trainer.py", line 57, in train_step
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/layers/layer.py", line 908, in __call__
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/ops/operation.py", line 46, in __call__
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 156, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/models/functional.py", line 182, in call
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/ops/function.py", line 171, in _run_through_graph
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/models/functional.py", line 637, in call
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/layers/layer.py", line 908, in __call__
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/ops/operation.py", line 46, in __call__
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/utils/traceback_utils.py", line 156, in error_handler
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/layers/rnn/lstm.py", line 584, in call
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/layers/rnn/rnn.py", line 402, in call
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/layers/rnn/lstm.py", line 551, in inner_loop
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/rnn.py", line 841, in lstm
+
+  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/keras/src/backend/tensorflow/rnn.py", line 933, in _cudnn_lstm
+
+Dnn is not supported
+	 [[{{node functional_1/lstm_1/CudnnRNNV3}}]] [Op:__inference_multi_step_on_iterator_5947]

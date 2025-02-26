@@ -310,13 +310,12 @@ def process_and_combine_data(
 
     # Generate business date range
     date_range = pd.bdate_range(start=start_date, end=end_date)
-
+    print(date_range)
     # Generate file paths
     data_paths = [
         f"{data_folder}/{stock_name}_{date.strftime('%Y-%m-%d')}_xnas-itch.parquet"
         for date in date_range
     ]
-    print(data_paths)
     # Initialize list to store daily data
     trade_days_data = []
 
@@ -345,3 +344,12 @@ def process_and_combine_data(
     all_data = pd.concat(trade_days_data)
 
     return add_time_features(all_data)
+
+
+if __name__ == "__main__":
+    process_and_combine_data(
+        start_date="2024-10-01",
+        end_date="2024-10-04",
+        data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/AAL/",
+        sampling_rate="1s",
+    )
