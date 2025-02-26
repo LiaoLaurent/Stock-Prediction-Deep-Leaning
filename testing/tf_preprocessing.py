@@ -12,7 +12,7 @@ import dotenv
 dotenv.load_dotenv()
 
 stock_name = os.getenv("STOCK_NAME")
-
+print(stock_name)
 def load_data(data_path):
     df = pd.read_parquet(data_path)
     df = df.reset_index().set_index("ts_event")
@@ -316,7 +316,7 @@ def process_and_combine_data(
         f"{data_folder}/{stock_name}_{date.strftime('%Y-%m-%d')}_xnas-itch.parquet"
         for date in date_range
     ]
-
+    print(data_paths)
     # Initialize list to store daily data
     trade_days_data = []
 

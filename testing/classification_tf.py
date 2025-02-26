@@ -143,7 +143,7 @@ from tf_preprocessing import process_and_combine_data
 start_date = os.getenv("START_DATE")  # Début janvier
 end_date = os.getenv("END_DATE")    # Fin mars
 
-# used AAL instead
+# used AAPL
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)
 
 print(all_data.columns)
@@ -272,34 +272,30 @@ from keras import layers
 #     restore_best_weights=True  # Restore best weights after stopping
 # )
 
-# Architecture du modèle optimisée
+# Architecture du modèle - Version simple mais plus grande
 def create_model(input_size):
     inputs = layers.Input(shape=(look_back, input_size))
-    
-    # CNN pour capturer les motifs locaux
-    x = layers.Conv1D(64, kernel_size=3, padding='same', activation='relu')(inputs)
+
+    # First LSTM layer - plus grand
+    x = layers.LSTM(512, return_sequences=True)(inputs)
     x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling1D(2)(x)
-    
-    # LSTM avec taille réduite mais efficace
-    x = layers.LSTM(128, return_sequences=True)(x)
-    x = layers.BatchNormalization()(x)
-    
-    # Attention plus légère
-    attn_output = layers.MultiHeadAttention(num_heads=2, key_dim=32)(x, x, x)
+
+    # MultiHeadAttention simple
+    attn_output = layers.MultiHeadAttention(num_heads=8, key_dim=64)(x, x, x)
     x = layers.Add()([x, attn_output])
     x = layers.LayerNormalization()(x)
-    x = layers.Dropout(0.2)(x)
-    
-    # LSTM final
-    x = layers.LSTM(64)(x)
+    x = layers.Dropout(0.3)(x)
+
+    # Second LSTM layer - plus grand
+    x = layers.LSTM(256, return_sequences=False)(x)
     x = layers.BatchNormalization()(x)
     x = layers.Dropout(0.2)(x)
-    
-    # Dense layers
-    x = layers.Dense(32, activation="relu")(x)
+
+    # Dense layers - plus larges
+    x = layers.Dense(128, activation="relu")(x)
+    x = layers.Dropout(0.2)(x)
     outputs = layers.Dense(3, activation="softmax")(x)
-    
+
     model = keras.Model(inputs=inputs, outputs=outputs)
     
     optimizer = keras.optimizers.Adam(learning_rate=0.001)
@@ -316,21 +312,11 @@ with tf.device('/GPU:0'):
     try:
         model = create_model(len(features))
         
-        # Ajout d'un callback pour la réduction du learning rate
-        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-            monitor='val_loss',
-            factor=0.2,
-            patience=3,
-            min_lr=0.0001
-        )
-        
         history = model.fit(
             train_gen,
             validation_data=val_gen,
             epochs=epochs,
-            callbacks=[ModelCheckpointCallback(), reduce_lr],
-            workers=4,
-            use_multiprocessing=True
+            callbacks=[ModelCheckpointCallback()],
         )
         
         current_model = model
