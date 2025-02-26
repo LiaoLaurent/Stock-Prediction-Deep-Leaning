@@ -13,3 +13,4 @@ stock_prediction_deep_leaning.egg-info
 *.pyw
 *.pyz
 *.pywz
+.specstory/
