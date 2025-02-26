@@ -1,9 +1,10 @@
 import pandas as pd
 import ta
 import numpy as np
+from tqdm import tqdm
 
-market_open = pd.Timestamp("09:30:00").time()
-market_close = pd.Timestamp("16:00:00").time()
+market_open = pd.Timestamp("13:30:00").time()
+market_close = pd.Timestamp("20:00:00").time()
 
 import os
 import dotenv
@@ -320,25 +321,26 @@ def process_and_combine_data(
     trade_days_data = []
 
     # Process each file
-    for path in data_paths:
-        # Load data
-        df = load_data(path)
+    for path in tqdm(data_paths):
+        if os.path.exists(path):
+            # Load data
+            df = load_data(path)
 
-        # Compute order sizes
-        order_sizes = group_and_pivot_order_sizes(df, sampling_rate=sampling_rate)
+            # Compute order sizes
+            order_sizes = group_and_pivot_order_sizes(df, sampling_rate=sampling_rate)
 
-        # Compute mid prices
-        mid_prices = resample_mid_prices(df, sampling_rate=sampling_rate)
+            # Compute mid prices
+            mid_prices = resample_mid_prices(df, sampling_rate=sampling_rate)
 
-        # Reindex order sizes to match mid prices
-        order_sizes = order_sizes.reindex(mid_prices.index, fill_value=0)
+            # Reindex order sizes to match mid prices
+            order_sizes = order_sizes.reindex(mid_prices.index, fill_value=0)
 
-        # Compute technical indicators
-        technical_indicators = compute_technical_indicators(mid_prices)
+            # Compute technical indicators
+            technical_indicators = compute_technical_indicators(mid_prices)
 
-        df_combined = order_sizes.join(technical_indicators, how="inner")
+            df_combined = order_sizes.join(technical_indicators, how="inner")
 
-        trade_days_data.append(df_combined)
+            trade_days_data.append(df_combined)
 
     all_data = pd.concat(trade_days_data)
 

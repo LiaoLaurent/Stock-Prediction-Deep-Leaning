@@ -131,17 +131,17 @@ unscaled_features = ['market_session']
 features = standard_features + minmax_features + unscaled_features
 # -
 
-sampling_rate = "1s"
+sampling_rate = "500ms"  # Échantillonnage plus fréquent
 prediction_column = "Target_close"
-batch_size = 16
-epochs = 10
-look_back = 32
+batch_size = 128  # Augmentation de la taille du batch pour plus d'efficacité
+epochs = 20
+look_back = 64  # Plus de contexte temporel
 
 # +
 from tf_preprocessing import process_and_combine_data
 
-start_date = os.getenv("START_DATE")
-end_date = os.getenv("END_DATE")
+start_date = os.getenv("START_DATE")  # Début janvier
+end_date = os.getenv("END_DATE")    # Fin mars
 
 # used AAL instead
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)
@@ -184,29 +184,27 @@ minmax_indices = [features.index(f) for f in minmax_features]
 unscaled_indices = [features.index(f) for f in unscaled_features]
 
 class TimeSeriesScalerGenerator(Sequence):
-    def __init__(self, data, target, look_back, batch_size=32, oversample=False, **kwargs):
-        """
-        Custom Timeseries Generator with per-sequence scaling and optional oversampling.
+    def __init__(self, data, target, look_back, batch_size=128, oversample=False, **kwargs):
+        super().__init__(**kwargs)
         
-        Args:
-            data (pd.DataFrame): DataFrame with feature columns.
-            target (str): Target column name.
-            look_back (int): Number of past time steps per sample.
-            batch_size (int): Batch size.
-            oversample (bool): Whether to oversample minority classes.
-        """
-        super().__init__(**kwargs)  # Call the parent class constructor with kwargs
-
-        self.data = data[features].values  # Extract feature matrix
-        self.targets = data[target].values.astype(int)  # Extract target labels
+        # Utiliser des chunks de données pour la mémoire
+        self.data = data[features].values
+        self.targets = data[target].values.astype(int)
         self.look_back = look_back
         self.batch_size = batch_size
         self.indices = np.arange(len(data) - look_back)
-        self.true_labels = self._extract_true_labels()
-
-        # Oversample minority classes if enabled
+        
         if oversample:
             self._oversample_minority_classes()
+            
+        # Pré-calculer les indices des features pour plus d'efficacité
+        self.standard_indices = [features.index(f) for f in standard_features]
+        self.minmax_indices = [features.index(f) for f in minmax_features]
+        self.unscaled_indices = [features.index(f) for f in unscaled_features]
+        
+        # Initialiser les scalers une seule fois
+        self.standard_scaler = StandardScaler()
+        self.minmax_scaler = MinMaxScaler()
 
     def __len__(self):
         """Number of batches per epoch."""
@@ -214,30 +212,16 @@ class TimeSeriesScalerGenerator(Sequence):
 
     def __getitem__(self, idx):
         """Generates one batch of data."""
-        batch_indices = self.indices[idx * self.batch_size : (idx + 1) * self.batch_size]
-
-        # Extract sequences efficiently using list slicing
-        batch_data = np.array([self.data[i : i + self.look_back] for i in batch_indices])
-
-        # Preallocate arrays for batch
+        batch_indices = self.indices[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_data = np.array([self.data[i:i + self.look_back] for i in batch_indices])
+        
         X_batch = np.empty((len(batch_indices), self.look_back, len(features)), dtype=np.float32)
-        y_batch = np.empty(len(batch_indices), dtype=np.int32)
-
-        # Scale each sequence individually
+        y_batch = self.targets[batch_indices + self.look_back]
+        
+        # Normalisation par batch pour plus d'efficacité
         for i, seq in enumerate(batch_data):
-            standard_scaler = StandardScaler()
-            minmax_scaler = MinMaxScaler(feature_range=(0, 1))
-
-            seq_standard = standard_scaler.fit_transform(seq[:, standard_indices])
-            seq_minmax = minmax_scaler.fit_transform(seq[:, minmax_indices])
-            seq_unscaled = (
-                seq[:, unscaled_indices] 
-                if unscaled_features else np.empty((self.look_back, 0))
-            )
-
-            X_batch[i] = np.hstack((seq_standard, seq_minmax, seq_unscaled))
-            y_batch[i] = self.targets[batch_indices[i] + self.look_back]
-
+            X_batch[i] = self._normalize_sequence(seq)
+        
         return X_batch, y_batch
     
     def _extract_true_labels(self):
@@ -247,11 +231,11 @@ class TimeSeriesScalerGenerator(Sequence):
     def _oversample_minority_classes(self):
         """Oversample minority classes by duplicating their sequences."""
         # Count class distribution
-        class_counts = Counter(self.true_labels)
+        class_counts = Counter(self.targets)
         max_count = max(class_counts.values())
 
         # Collect indices for each class
-        class_indices = {label: np.where(self.true_labels == label)[0] for label in class_counts}
+        class_indices = {label: np.where(self.targets == label)[0] for label in class_counts}
 
         # Oversample minority classes
         oversampled_indices = []
@@ -260,10 +244,17 @@ class TimeSeriesScalerGenerator(Sequence):
             oversampled_indices.extend(np.repeat(indices, repeat_count))
             oversampled_indices.extend(np.random.choice(indices, max_count % len(indices), replace=True))
 
-        # Update indices and true_labels
+        # Update indices and targets
         self.indices = np.array(oversampled_indices)
-        self.true_labels = self.true_labels[self.indices]
+        self.targets = self.targets[self.indices]
 
+    def _normalize_sequence(self, seq):
+        # Normalisation optimisée
+        seq_standard = self.standard_scaler.fit_transform(seq[:, self.standard_indices])
+        seq_minmax = self.minmax_scaler.fit_transform(seq[:, self.minmax_indices])
+        seq_unscaled = seq[:, self.unscaled_indices]
+        
+        return np.hstack((seq_standard, seq_minmax, seq_unscaled))
 
 # -
 
@@ -281,56 +272,67 @@ from keras import layers
 #     restore_best_weights=True  # Restore best weights after stopping
 # )
 
-
-input_size = len(features)
-
-inputs = layers.Input(shape=(look_back, input_size))
-
-# First LSTM layer
-x = layers.LSTM(256, return_sequences=True)(inputs)
-x = layers.BatchNormalization()(x)
-
-# MultiHeadAttention requires query, key, value (use same for self-attention)
-attn_output = layers.MultiHeadAttention(num_heads=4, key_dim=64)(x, x, x)
-x = layers.Add()([x, attn_output])  # Residual connection (optional)
-x = layers.LayerNormalization()(x)
-x = layers.Dropout(0.3)(x)  # Dropout after attention
-
-# Second LSTM layer
-x = layers.LSTM(128, return_sequences=False)(x)
-x = layers.BatchNormalization()(x)
-x = layers.Dropout(0.2)(x)
-
-# Dense layers
-x = layers.Dense(64, activation="relu")(x)
-x = layers.Dropout(0.2)(x)
-outputs = layers.Dense(3, activation="softmax")(x)
-
-# Create model
-model = keras.Model(inputs=inputs, outputs=outputs)
-
-optimizer = keras.optimizers.Adam(learning_rate=0.001)
-# optimizer = keras.optimizers.SGD(learning_rate=0.01)
-
-model.compile(optimizer=optimizer, 
-              loss="sparse_categorical_crossentropy", 
-              metrics=["accuracy"])
-
-
-# +
+# Architecture du modèle optimisée
+def create_model(input_size):
+    inputs = layers.Input(shape=(look_back, input_size))
+    
+    # CNN pour capturer les motifs locaux
+    x = layers.Conv1D(64, kernel_size=3, padding='same', activation='relu')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling1D(2)(x)
+    
+    # LSTM avec taille réduite mais efficace
+    x = layers.LSTM(128, return_sequences=True)(x)
+    x = layers.BatchNormalization()(x)
+    
+    # Attention plus légère
+    attn_output = layers.MultiHeadAttention(num_heads=2, key_dim=32)(x, x, x)
+    x = layers.Add()([x, attn_output])
+    x = layers.LayerNormalization()(x)
+    x = layers.Dropout(0.2)(x)
+    
+    # LSTM final
+    x = layers.LSTM(64)(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.2)(x)
+    
+    # Dense layers
+    x = layers.Dense(32, activation="relu")(x)
+    outputs = layers.Dense(3, activation="softmax")(x)
+    
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    
+    optimizer = keras.optimizers.Adam(learning_rate=0.001)
+    model.compile(
+        optimizer=optimizer,
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    return model
 
 # Train Model
 with tf.device('/GPU:0'):
     logging.info("Début de l'entraînement...")
     try:
+        model = create_model(len(features))
+        
+        # Ajout d'un callback pour la réduction du learning rate
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.2,
+            patience=3,
+            min_lr=0.0001
+        )
+        
         history = model.fit(
             train_gen,
             validation_data=val_gen,
             epochs=epochs,
-            callbacks=[ModelCheckpointCallback()],
+            callbacks=[ModelCheckpointCallback(), reduce_lr],
+            workers=4,
+            use_multiprocessing=True
         )
         
-        # Sauvegarde finale du modèle et des métriques
         current_model = model
         current_metrics = history.history
         save_model_and_metrics()
