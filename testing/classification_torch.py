@@ -114,6 +114,11 @@ minmax_features = [
 unscaled_features = ['market_session']
 features = standard_features + minmax_features + unscaled_features
 
+# Calculer les indices une seule fois
+standard_indices = [features.index(f) for f in standard_features]
+minmax_indices = [features.index(f) for f in minmax_features]
+unscaled_indices = [features.index(f) for f in unscaled_features]
+
 sampling_rate = "500ms"  # Échantillonnage plus fréquent
 prediction_column = "Target_close"
 batch_size = 128  # Augmentation de la taille du batch pour plus d'efficacité
@@ -123,8 +128,8 @@ look_back = 64  # Plus de contexte temporel
 # Data preprocessing
 from tf_preprocessing import process_and_combine_data
 
-start_date = "2024-10-01"  # os.getenv("START_DATE")  # Début janvier
-end_date = "2024-10-01"    # Fin mars
+start_date = os.getenv("START_DATE")  # Début janvier
+end_date = os.getenv("END_DATE")    # Fin mars
 
 # used AAPL
 all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)
@@ -162,17 +167,9 @@ class TimeSeriesDataset(Dataset):
         # Pre-calculate indices
         self.indices = np.arange(len(data) - look_back)
         
-        if oversample:
-            self._oversample_minority_classes()
-            
-        # Initialize scalers
-        self.standard_scaler = StandardScaler()
-        self.minmax_scaler = MinMaxScaler()
-        
-        # Feature indices
-        self.standard_indices = [features.index(f) for f in standard_features]
-        self.minmax_indices = [features.index(f) for f in minmax_features]
-        self.unscaled_indices = [features.index(f) for f in unscaled_features]
+        # Fit scalers on all data once
+        self.standard_scaler = StandardScaler().fit(self.data[:, standard_indices])
+        self.minmax_scaler = MinMaxScaler().fit(self.data[:, minmax_indices])
 
     def __len__(self):
         return len(self.indices)
@@ -182,87 +179,38 @@ class TimeSeriesDataset(Dataset):
         seq = self.data[seq_idx:seq_idx + self.look_back]
         target = self.targets[seq_idx + self.look_back]
         
-        # Normalize sequence
-        seq = self._normalize_sequence(seq)
+        # Transform using pre-fitted scalers
+        seq_standard = self.standard_scaler.transform(seq[:, standard_indices])
+        seq_minmax = self.minmax_scaler.transform(seq[:, minmax_indices])
+        seq_unscaled = seq[:, unscaled_indices]
         
-        return torch.FloatTensor(seq), torch.LongTensor([target])[0]
-
-    def _normalize_sequence(self, seq):
-        seq_standard = self.standard_scaler.fit_transform(seq[:, self.standard_indices])
-        seq_minmax = self.minmax_scaler.fit_transform(seq[:, self.minmax_indices])
-        seq_unscaled = seq[:, self.unscaled_indices]
-        return np.hstack((seq_standard, seq_minmax, seq_unscaled))
-
-    def _oversample_minority_classes(self):
-        from collections import Counter
-        class_counts = Counter(self.targets)
-        max_count = max(class_counts.values())
-        
-        class_indices = {label: np.where(self.targets == label)[0] for label in class_counts}
-        
-        oversampled_indices = []
-        for label, indices in class_indices.items():
-            repeat_count = max_count // len(indices)
-            oversampled_indices.extend(np.repeat(indices, repeat_count))
-            oversampled_indices.extend(np.random.choice(indices, max_count % len(indices), replace=True))
-            
-        self.indices = np.array(oversampled_indices)
-        self.targets = self.targets[self.indices]
-
-def collate_fn(batch):
-    # Trier par longueur de séquence
-    batch.sort(key=lambda x: len(x[0]), reverse=True)
-    
-    # Séparer les séquences et les labels
-    sequences, labels = zip(*batch)
-    
-    # Convertir en tensors
-    sequences = torch.stack(sequences)
-    labels = torch.stack(labels)
-    
-    return sequences, labels
+        # Concatenate all features
+        seq_normalized = np.hstack((seq_standard, seq_minmax, seq_unscaled))
+        return torch.FloatTensor(seq_normalized), torch.LongTensor([target])[0]
 
 # Create datasets and dataloaders
-train_dataset = TimeSeriesDataset(train_df, prediction_column, look_back, oversample=True)
+train_dataset = TimeSeriesDataset(train_df, prediction_column, look_back)
 val_dataset = TimeSeriesDataset(val_df, prediction_column, look_back)
 test_dataset = TimeSeriesDataset(test_df, prediction_column, look_back)
 
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn, drop_last=True)
-val_loader = DataLoader(val_dataset, batch_size=batch_size, collate_fn=collate_fn, drop_last=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, collate_fn=collate_fn, drop_last=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, drop_last=True)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, drop_last=True)
 
-class LSTMClassifier(nn.Module):
+class SimpleClassifier(nn.Module):
     def __init__(self, input_size):
         super().__init__()
-        self.lstm1 = nn.LSTM(input_size, 256, batch_first=True)
-        self.bn1 = nn.BatchNorm1d(256)
-        self.dropout1 = nn.Dropout(0.3)
-        
-        self.lstm2 = nn.LSTM(256, 128, batch_first=True)
-        self.bn2 = nn.BatchNorm1d(128)
-        self.dropout2 = nn.Dropout(0.2)
-        
-        self.fc = nn.Linear(128, 64)
-        self.out = nn.Linear(64, 3)
+        self.lstm = nn.LSTM(input_size, 128, batch_first=True)
+        self.fc = nn.Linear(128, 3)
         
     def forward(self, x):
-        x, _ = self.lstm1(x)
+        x, _ = self.lstm(x)
         x = x[:, -1, :]  # Prendre le dernier timestep
-        x = self.bn1(x)
-        x = self.dropout1(x)
-        
-        x = x.unsqueeze(1)  # Rajouter la dimension sequence
-        x, _ = self.lstm2(x)
-        x = x.squeeze(1)  # Enlever la dimension sequence
-        x = self.bn2(x)
-        x = self.dropout2(x)
-        
-        x = torch.relu(self.fc(x))
-        x = self.out(x)
+        x = self.fc(x)
         return x
 
 # Training
-model = LSTMClassifier(len(features)).to(device)
+model = SimpleClassifier(len(features)).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 checkpoint = ModelCheckpoint()
