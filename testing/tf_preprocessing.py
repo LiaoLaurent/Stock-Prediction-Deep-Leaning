@@ -280,7 +280,7 @@ def add_time_features(combined_df):
 def process_and_combine_data(
     start_date,
     end_date,
-    data_folder="../AAPL_data",
+    data_folder="/home/janis/EAP1/HFT_QR_RL/data/smash4/DB_MBP_10/AAL",
     sampling_rate="1s",
 ):
     """
@@ -306,7 +306,7 @@ def process_and_combine_data(
 
     # Generate file paths
     data_paths = [
-        f"{data_folder}/AAPL_{date.strftime('%Y-%m-%d')}_xnas-itch.parquet"
+        f"{data_folder}/AAL_{date.strftime('%Y-%m-%d')}.parquet"
         for date in date_range
     ]
 

@@ -6,3 +6,10 @@ test.ipynb
 returns_predictions.py
 uv.lock
 stock_prediction_deep_leaning.egg-info
+*pycache*
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
