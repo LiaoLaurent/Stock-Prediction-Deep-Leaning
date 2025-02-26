@@ -1,0 +1,109 @@
+2025-02-26 17:17:20,656 - INFO - Début de l'entraînement...
+2025-02-26 17:20:35,141 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:20:35,141 - INFO - Using opset <onnx, 15>
+2025-02-26 17:20:35,165 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:20:35,165 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:20:35,171 - INFO - Computed 2 values for constant folding
+2025-02-26 17:20:35,196 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:20:35,196 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:20:35,197 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:20:35,200 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:20:35,217 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:20:35,226 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:20:35,226 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:20:35,229 - INFO - Optimizing ONNX model
+2025-02-26 17:20:35,526 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__173'.
+2025-02-26 17:20:35,773 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__249'.
+2025-02-26 17:20:36,242 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:20:36,253 - INFO - Epoch 1 terminée - Modèle et métriques sauvegardés
+2025-02-26 17:23:44,714 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:23:44,714 - INFO - Using opset <onnx, 15>
+2025-02-26 17:23:44,739 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:23:44,739 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:23:44,745 - INFO - Computed 2 values for constant folding
+2025-02-26 17:23:44,770 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:23:44,770 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:23:44,771 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:23:44,772 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:23:44,788 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:23:44,798 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:23:44,798 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:23:44,801 - INFO - Optimizing ONNX model
+2025-02-26 17:23:45,250 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__427'.
+2025-02-26 17:23:45,261 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__503'.
+2025-02-26 17:23:45,402 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:23:45,414 - INFO - Epoch 2 terminée - Modèle et métriques sauvegardés
+2025-02-26 17:25:25,478 - INFO - Signal d'interruption reçu. Arrêt propre en cours...
+2025-02-26 17:25:26,406 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:25:26,407 - INFO - Using opset <onnx, 15>
+2025-02-26 17:25:26,429 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:25:26,429 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:25:26,435 - INFO - Computed 2 values for constant folding
+2025-02-26 17:25:26,460 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:25:26,460 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:25:26,461 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:25:26,462 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:25:26,479 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:25:26,489 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:25:26,490 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:25:26,494 - INFO - Optimizing ONNX model
+2025-02-26 17:25:26,575 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__681'.
+2025-02-26 17:25:26,586 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__757'.
+2025-02-26 17:25:26,721 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:25:26,732 - INFO - Modèle sauvegardé en format ONNX: data/models/classification/classification_model_20250226_171713_interrupted.onnx
+2025-02-26 17:25:26,732 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_171713_interrupted_metrics.json
+2025-02-26 17:25:30,341 - INFO - Signal d'interruption reçu. Arrêt propre en cours...
+2025-02-26 17:25:31,268 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:25:31,268 - INFO - Using opset <onnx, 15>
+2025-02-26 17:25:31,290 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:25:31,290 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:25:31,296 - INFO - Computed 2 values for constant folding
+2025-02-26 17:25:31,321 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:25:31,321 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:25:31,322 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:25:31,324 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:25:31,339 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:25:31,351 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:25:31,351 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:25:31,354 - INFO - Optimizing ONNX model
+2025-02-26 17:25:31,437 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__939'.
+2025-02-26 17:25:31,450 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__1011'.
+2025-02-26 17:25:31,958 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:25:31,972 - INFO - Modèle sauvegardé en format ONNX: data/models/classification/classification_model_20250226_171713_interrupted.onnx
+2025-02-26 17:25:31,972 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_171713_interrupted_metrics.json
+2025-02-26 17:26:58,884 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:26:58,884 - INFO - Using opset <onnx, 15>
+2025-02-26 17:26:58,909 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:26:58,909 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:26:58,917 - INFO - Computed 2 values for constant folding
+2025-02-26 17:26:58,941 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:26:58,941 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:26:58,942 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:26:58,943 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:26:58,959 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:26:58,968 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:26:58,969 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:26:58,971 - INFO - Optimizing ONNX model
+2025-02-26 17:26:59,459 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__1193'.
+2025-02-26 17:26:59,472 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__1265'.
+2025-02-26 17:26:59,638 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:26:59,652 - INFO - Epoch 3 terminée - Modèle et métriques sauvegardés
+2025-02-26 17:27:00,624 - INFO - Using tensorflow=2.18.0, onnx=1.17.0, tf2onnx=1.16.1/15c810
+2025-02-26 17:27:00,624 - INFO - Using opset <onnx, 15>
+2025-02-26 17:27:00,648 - WARNING - Cannot infer shape for functional_1/lstm_1/CudnnRNNV3: functional_1/lstm_1/CudnnRNNV3:3,functional_1/lstm_1/CudnnRNNV3:4
+2025-02-26 17:27:00,649 - WARNING - Cannot infer shape for functional_1/lstm_1_2/CudnnRNNV3: functional_1/lstm_1_2/CudnnRNNV3:3,functional_1/lstm_1_2/CudnnRNNV3:4
+2025-02-26 17:27:00,655 - INFO - Computed 2 values for constant folding
+2025-02-26 17:27:00,681 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1/strided_slice_3
+2025-02-26 17:27:00,681 - INFO - folding node using tf type=StridedSlice, name=functional_1/lstm_1_2/strided_slice_3
+2025-02-26 17:27:00,682 - ERROR - rewriter <function rewrite_constant_fold at 0x7fb64adb1080>: exception `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.
+2025-02-26 17:27:00,683 - INFO - ['Traceback (most recent call last):\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 375, in run_rewriters\n    ops = func(g, g.get_nodes())\n          ^^^^^^^^^^^^^^^^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/tf2onnx/tfonnx.py", line 77, in rewrite_constant_fold\n    "Cast": np.cast,\n            ^^^^^^^\n', '  File "/home/janis/3A/HFTP2/Stock-Prediction-Deep-Leaning/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 397, in __getattr__\n    raise AttributeError(\n', 'AttributeError: `np.cast` was removed in the NumPy 2.0 release. Use `np.asarray(arr, dtype=dtype)` instead.\n']
+2025-02-26 17:27:00,700 - ERROR - Tensorflow op [functional_1/lstm_1/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:27:00,709 - ERROR - Tensorflow op [functional_1/lstm_1_2/CudnnRNNV3: CudnnRNNV3] is not supported
+2025-02-26 17:27:00,709 - ERROR - Unsupported ops: Counter({'CudnnRNNV3': 2})
+2025-02-26 17:27:00,712 - INFO - Optimizing ONNX model
+2025-02-26 17:27:00,799 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum_1/Einsum' by its decomposed version, name of the last node 'Identity__1447'.
+2025-02-26 17:27:00,811 - INFO - replacing einsum node 'functional_1/multi_head_attention_1/einsum/Einsum' by its decomposed version, name of the last node 'Identity__1519'.
+2025-02-26 17:27:00,951 - INFO - After optimization: Cast -14 (20->6), Concat +4 (4->8), Const -52 (87->35), Einsum -2 (2->0), Expand -2 (6->4), Gather +12 (0->12), GlobalAveragePool +2 (0->2), Identity -3 (3->0), MatMul +2 (6->8), Max +2 (0->2), ReduceMean -2 (2->0), ReduceProd +4 (0->4), Shape +2 (4->6), Slice -2 (4->2), Squeeze -2 (5->3), Transpose +6 (0->6), Unsqueeze -8 (14->6)
+2025-02-26 17:27:00,964 - INFO - Modèle sauvegardé en format ONNX: data/models/classification/classification_model_20250226_171713_interrupted.onnx
+2025-02-26 17:27:00,964 - INFO - Métriques sauvegardées: data/metrics/classification_model_20250226_171713_interrupted_metrics.json
+2025-02-26 17:27:00,964 - INFO - Entraînement terminé avec succès

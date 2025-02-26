@@ -1,0 +1,5 @@
+Métriques finales:
+Accuracy: 0.6209
+Validation Accuracy: 0.9479
+Loss: 0.6626
+Validation Loss: 0.4664

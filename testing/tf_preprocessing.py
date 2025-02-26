@@ -5,6 +5,12 @@ import numpy as np
 market_open = pd.Timestamp("09:30:00").time()
 market_close = pd.Timestamp("16:00:00").time()
 
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
+stock_name = os.getenv("STOCK_NAME")
 
 def load_data(data_path):
     df = pd.read_parquet(data_path)
@@ -280,7 +286,7 @@ def add_time_features(combined_df):
 def process_and_combine_data(
     start_date,
     end_date,
-    data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/AAL",
+    data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name,
     sampling_rate="1s",
 ):
     """
@@ -306,7 +312,7 @@ def process_and_combine_data(
 
     # Generate file paths
     data_paths = [
-        f"{data_folder}/AAL_{date.strftime('%Y-%m-%d')}.parquet"
+        f"{data_folder}/{stock_name}_{date.strftime('%Y-%m-%d')}_xnas-itch.parquet"
         for date in date_range
     ]
 

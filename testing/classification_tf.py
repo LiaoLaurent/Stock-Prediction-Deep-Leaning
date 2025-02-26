@@ -20,9 +20,102 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
+import os
+import json
+import signal
+import sys
+import onnx
+import tf2onnx
+import logging
+from pathlib import Path
+import dotenv
 
+dotenv.load_dotenv()
+
+stock_name = os.getenv("STOCK_NAME")
+
+# Configuration du GPU
 tf.random.set_seed(0)
-# -
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+
+# Configuration des chemins
+MODEL_DIR = "data/models/classification"
+METRICS_DIR = "data/metrics"
+LOG_DIR = "logs"
+os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(METRICS_DIR, exist_ok=True)
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Configuration du logging
+current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_file = os.path.join(LOG_DIR, f"training_{current_time}.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# Variables globales pour la gestion de l'interruption
+stop_training = False
+current_model = None
+current_metrics = None
+
+def signal_handler(signum, frame):
+    global stop_training
+    logging.info("Signal d'interruption reçu. Arrêt propre en cours...")
+    stop_training = True
+    save_model_and_metrics()
+
+def save_model_and_metrics():
+    global current_model, current_metrics
+    if current_model is not None:
+        try:
+            # Sauvegarde du modèle en format ONNX
+            model_name = f"classification_model_{current_time}_interrupted"
+            model_path = os.path.join(MODEL_DIR, f"{model_name}.onnx")
+            spec = (tf.TensorSpec((None, look_back, len(features)), tf.float32, name="input"),)
+            model_proto, _ = tf2onnx.convert.from_keras(current_model, input_signature=spec, output_path=model_path)
+            logging.info(f"Modèle sauvegardé en format ONNX: {model_path}")
+
+            # Sauvegarde des métriques
+            if current_metrics is not None:
+                metrics_path = os.path.join(METRICS_DIR, f"{model_name}_metrics.json")
+                with open(metrics_path, 'w') as f:
+                    json.dump(current_metrics, f, indent=4)
+                logging.info(f"Métriques sauvegardées: {metrics_path}")
+        except Exception as e:
+            logging.error(f"Erreur lors de la sauvegarde: {str(e)}")
+
+class ModelCheckpointCallback(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        global current_model, current_metrics
+        current_model = self.model
+        current_metrics = logs
+
+        # Sauvegarde du modèle en format ONNX
+        model_name = f"classification_model_{current_time}_epoch_{epoch+1}"
+        model_path = os.path.join(MODEL_DIR, f"{model_name}.onnx")
+        spec = (tf.TensorSpec((None, look_back, len(features)), tf.float32, name="input"),)
+        model_proto, _ = tf2onnx.convert.from_keras(self.model, input_signature=spec, output_path=model_path)
+        
+        # Sauvegarde des métriques
+        metrics_path = os.path.join(METRICS_DIR, f"{model_name}_metrics.json")
+        with open(metrics_path, 'w') as f:
+            json.dump(logs, f, indent=4)
+        
+        logging.info(f"Epoch {epoch+1} terminée - Modèle et métriques sauvegardés")
+
+        if stop_training:
+            self.model.stop_training = True
+
+# Installation du gestionnaire de signal
+signal.signal(signal.SIGINT, signal_handler)
 
 print(tf.__version__)
 print("GPU disponible:", tf.config.list_physical_devices('GPU'))
@@ -52,10 +145,10 @@ look_back = 32
 from tf_preprocessing import process_and_combine_data
 
 start_date = "2024-10-02"
-end_date = "2024-10-04"
+end_date = "2024-10-15"
 
 # used AAL instead
-all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/AAL", sampling_rate=sampling_rate)
+all_data = process_and_combine_data(start_date, end_date, data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/" + stock_name, sampling_rate=sampling_rate)
 
 print(all_data.columns)
 
@@ -231,90 +324,23 @@ model.compile(optimizer=optimizer,
 # +
 
 # Train Model
-model.fit(train_gen, validation_data=val_gen, epochs=epochs)
-# -
-
-# Spécifier explicitement l'utilisation du GPU
 with tf.device('/GPU:0'):
-    model.fit(
-        train_gen,
-        validation_data=val_gen,
-        epochs=epochs,
-    )
-
-# +
-from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
-
-def plot_evaluation_metrics(y_true, y_pred, log_probabilities):
-    probabilities = np.exp(log_probabilities)
-
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-
-    # Confusion Matrix (updated for 3 classes)
-    cm = confusion_matrix(y_true, y_pred)
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt="d",
-        cmap="Blues",
-        ax=axes[0],
-        xticklabels=["Down (0)", "Constant (1)", "Up (2)"],  # Updated class labels with meaning
-        yticklabels=["Down (0)", "Constant (1)", "Up (2)"],  # Updated class labels with meaning
-    )
-    axes[0].set_title("Confusion Matrix")
-    axes[0].set_xlabel("Predicted")
-    axes[0].set_ylabel("True")
-
-    # Histogram of Predicted Probabilities (updated for 3 classes)
-    for i, class_label in enumerate(["Down (0)", "Constant (1)", "Up (2)"]):  # Updated class labels with meaning
-        sns.histplot(
-            probabilities[y_true == i][:, i], bins=30, label=class_label, ax=axes[1]
+    logging.info("Début de l'entraînement...")
+    try:
+        history = model.fit(
+            train_gen,
+            validation_data=val_gen,
+            epochs=epochs,
+            callbacks=[ModelCheckpointCallback()],
         )
-    axes[1].set_title("Probability Distribution")
-    axes[1].set_xlabel("Predicted Probability")
-    axes[1].legend()
-
-    # Scatter Plot of Predictions (updated for 3 classes)
-    scatter = sns.scatterplot(
-        x=np.arange(len(probabilities)),
-        y=probabilities.max(axis=1),
-        hue=y_true,
-        palette={0: "red", 1: "blue", 2: "green"},  # Updated palette for 0, 1, 2
-        alpha=0.7,
-        ax=axes[2],
-    )
-    axes[2].set_title("Scatter Plot of Predictions")
-    axes[2].set_xlabel("Sample Index")
-    axes[2].set_ylabel("Max Predicted Probability")
-
-    handles, labels = scatter.get_legend_handles_labels()
-    new_labels = ["Down (0)", "Constant (1)", "Up (2)"]  # Updated class labels with meaning
-    axes[2].legend(handles, new_labels, title="True Class")
-
-    axes[2].tick_params(axis="x", rotation=45)
-
-    plt.tight_layout()
-    plt.show()
-
-    # Print Evaluation Metrics
-    print(f"Accuracy: {accuracy_score(y_true, y_pred):.4f}")
-    print(classification_report(y_true, y_pred, zero_division=0))
-
-
-# +
-y_pred_prob = model.predict(test_gen)
-y_pred = np.argmax(y_pred_prob, axis=1)
-log_probabilities = np.log(y_pred_prob)
-
-y_test = test_gen.true_labels
-
-# Assuming y_test is the true labels for the test set
-plot_evaluation_metrics(y_test, y_pred, log_probabilities)
-
-# +
-# Implement a random strategy
-random_y_pred = np.random.randint(0, 3, size=len(y_test))
-random_log_probabilities = np.log(np.random.rand(len(y_test), 3))
-
-# Plot evaluation metrics for the random strategy
-plot_evaluation_metrics(y_test, random_y_pred, random_log_probabilities)
+        
+        # Sauvegarde finale du modèle et des métriques
+        current_model = model
+        current_metrics = history.history
+        save_model_and_metrics()
+        
+        logging.info("Entraînement terminé avec succès")
+    except Exception as e:
+        logging.error(f"Erreur pendant l'entraînement: {str(e)}")
+        save_model_and_metrics()
+# -

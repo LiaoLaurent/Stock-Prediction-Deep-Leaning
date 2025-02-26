@@ -1,0 +1,4 @@
+2025-02-26 17:33:33,772 - INFO - Données chargées avec succès
+2025-02-26 17:33:33,800 - INFO - Générateurs de données créés
+2025-02-26 17:33:34,489 - INFO - Début de l'entraînement...
+2025-02-26 17:33:34,489 - ERROR - Erreur pendant l'entraînement: name 'standard_indices' is not defined

@@ -2,7 +2,10 @@ import numpy as np
 import pandas as pd
 import ta # type: ignore
 import matplotlib.pyplot as plt
+import os
+import dotenv
 
+dotenv.load_dotenv()
 
 ### Time in UTC, donc il y a un décalage horaire ###
 market_open_time = "13:30:00"
