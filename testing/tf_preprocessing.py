@@ -280,7 +280,7 @@ def add_time_features(combined_df):
 def process_and_combine_data(
     start_date,
     end_date,
-    data_folder="/home/janis/EAP1/HFT_QR_RL/data/smash4/DB_MBP_10/AAL",
+    data_folder="/home/janis/3A/EA/HFT_QR_RL/data/smash4/DB_MBP_10/AAL",
     sampling_rate="1s",
 ):
     """
